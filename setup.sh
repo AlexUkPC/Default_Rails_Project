@@ -6,25 +6,25 @@ rm -rf Default_Rails_Project .git
 ##ask for db username and psw for dev
 ##ask for port
 ##ask for webpacker server port
-# read -p "Enter project name [untitled]:" project_name
-# project_name=${project_name:-untitled}
-# read -p "Enter postgres username [postgres]:" postgres_user
-# postgres_user=${postgres_user:-postgres}
-# read -p "Enter postgres psw [password]:" postgres_psw
-# postgres_psw=${postgres_psw:-password}
-# read -p "Enter project port [3000]:" project_port
-# project_port=${project_port:-3000}
-# read -p "Enter project webpacker port [3035]:" webpacker_port
-# webpacker_port=${webpacker_port:-3035}
+read -p "Enter project name [untitled]:" project_name
+project_name=${project_name:-untitled}
+read -p "Enter postgres username [postgres]:" postgres_user
+postgres_user=${postgres_user:-postgres}
+read -p "Enter postgres psw [password]:" postgres_psw
+postgres_psw=${postgres_psw:-password}
+read -p "Enter project port [3000]:" project_port
+project_port=${project_port:-3000}
+read -p "Enter project webpacker port [3035]:" webpacker_port
+webpacker_port=${webpacker_port:-3035}
 
 ##replace <project_name>,dev db username and psw, port and webpacker port in all files
 ##rename files with <project_name> where needed
 
-# grep -RiIl --exclude=setup.sh --exclude-dir=bkp '<project_name>' | xargs sed -i 's/<project_name>/'$project_name'/g'
-# grep -RiIl --exclude=setup.sh --exclude-dir=bkp '<postgres_user>' | xargs sed -i 's/<postgres_user>/'$postgres_user'/g'
-# grep -RiIl --exclude=setup.sh --exclude-dir=bkp '<postgres_psw>' | xargs sed -i 's/<postgres_psw>/'$postgres_psw'/g'
-# grep -RiIl --exclude=setup.sh --exclude-dir=bkp '<port>' | xargs sed -i 's/<port>/'$project_port'/g'
-# grep -RiIl --exclude=setup.sh --exclude-dir=bkp '<port_webpacker>' | xargs sed -i 's/<port_webpacker>/'$webpacker_port'/g'
+grep -RiIl --exclude=setup.sh --exclude-dir=bkp '<project_name>' | xargs sed -i 's/<project_name>/'$project_name'/g'
+grep -RiIl --exclude=setup.sh --exclude-dir=bkp '<postgres_user>' | xargs sed -i 's/<postgres_user>/'$postgres_user'/g'
+grep -RiIl --exclude=setup.sh --exclude-dir=bkp '<postgres_psw>' | xargs sed -i 's/<postgres_psw>/'$postgres_psw'/g'
+grep -RiIl --exclude=setup.sh --exclude-dir=bkp '<port>' | xargs sed -i 's/<port>/'$project_port'/g'
+grep -RiIl --exclude=setup.sh --exclude-dir=bkp '<port_webpacker>' | xargs sed -i 's/<port_webpacker>/'$webpacker_port'/g'
 
 # cp -r env_example/ .env
 # mv .env/development/web .env/development/web_$project_name
