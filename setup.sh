@@ -1,7 +1,6 @@
 ##move everything from default_project out
 mv Default_Rails_Project/{*,.[^.]*} .
-# mv Default_project_Rails6_with_postgres_and_Jenkins_premerge_and_postmerge/steps.txt .
-# rm -r Default_project_Rails6_with_postgres_and_Jenkins_premerge_and_postmerge
+rm -r Default_Rails_Project .git
 
 ##ask for project_name
 ##ask for db username and psw for dev
