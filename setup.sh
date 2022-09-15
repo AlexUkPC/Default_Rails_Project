@@ -8,6 +8,7 @@ rm -rf Default_Rails_Project .git
 ##ask for webpacker server port
 read -p "Enter project name [untitled]:" project_name
 project_name=${project_name:-untitled}
+read -p "Enter project id (3 digits, eg. 001):" project_id
 read -p "Database [postgres]:" database
 database=${database:-postgres}
 if [ "$database" == "postgres" ]
@@ -19,10 +20,14 @@ then
   read -p "Enter postgres psw [password]:" postgres_psw
   postgres_psw=${postgres_psw:-password}
 fi
-read -p "Enter project port [3000]:" project_port
-project_port=${project_port:-3000}
-read -p "Enter project webpacker port [3035]:" webpacker_port
-webpacker_port=${webpacker_port:-3035}
+read -p "Enter project port [3$project_id]:" project_port
+project_port=${project_port:-3$project_id}
+read -p "Enter project webpacker port [4$project_id]:" webpacker_port
+webpacker_port=${webpacker_port:-4$project_id}
+read -p "Enter project subnet [172.10.239.0]:" subnet
+subnet=${subnet:-3035}
+read -p "Enter project jenkins subnet [3035]:" jenkins_subnet
+jenkins_subnet=${jenkins_subnet:-3035}
 
 ##replace <project_name>,dev db username and psw, port and webpacker port in all files
 ##rename files with <project_name> where needed
