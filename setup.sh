@@ -1,6 +1,6 @@
 ##move everything from default_project out
 mv Default_Rails_Project/{*,.[^.]*} .
-rm -r Default_Rails_Project .git
+rm -rf Default_Rails_Project .git
 
 ##ask for project_name
 ##ask for db username and psw for dev
