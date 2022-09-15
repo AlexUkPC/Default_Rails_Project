@@ -10,7 +10,7 @@ read -p "Enter project name [untitled]:" project_name
 project_name=${project_name:-untitled}
 read -p "Database [postgres]:" database
 database=${database:-postgres}
-if [$database == "postgres"]
+if [ "$database" == "postgres" ]
 then
   read -p "Version [13]:" postgres_version
   postgres_version=${postgres_version:-13}
