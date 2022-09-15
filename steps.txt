@@ -1,0 +1,65 @@
+run git....
+move setup.sh in the main folder 
+run setup.sh
+
+    
+- [ ]  Config Postgresql
+    
+    in config/database.yml changes:
+    
+    ```
+    in default:
+       ...
+       pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+      host: <%= ENV.fetch("DATABASE_HOST"){ 'none'}  %>
+      username: <%= ENV.fetch("POSTGRES_USER"){ 'none'}  %>
+      password: <%= ENV.fetch("POSTGRES_PASSWORD"){ 'none'}  %>
+      database: <%= ENV.fetch("POSTGRES_DB"){ 'none'}  %>
+      timeout: 5000
+    in development sa ramana doar <<: *default
+    in production sa ramana doar <<: *default
+    ```
+    
+- [ ]  Config Webpacker
+    
+    in config/webpacker.yml
+    
+    ```
+    development:
+        ...
+        dev_server:
+            ...
+            port: 3035 #change this to <port_webpacker>
+            public: localhost:3035 #change this to <port_webpacker>
+            ...
+            watch_options:
+                ...
+                poll: true #add this row
+    ```
+      
+- [ ]  Config ports
+    
+    in docker-compose.yml
+    
+    ```
+    services:
+        web_<project_name>:
+            ports:
+            - "3000:3000" #change only first(external) port to <port>
+        webpack_dev_server_<project_name>:
+            ports:
+            - "3035:3035" #change this to <port_webpacker>:<port_webpacker>
+    ```
+    
+- [ ]  Refresh project
+    
+    ```
+    cd ..
+    cd <project_name>
+    ```
+    
+- [ ]  Start docker container
+    
+    ```
+    docker-compose up -d
+    ```

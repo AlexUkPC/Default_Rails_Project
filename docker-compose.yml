@@ -1,0 +1,56 @@
+version: "3"
+services:
+  web_<project_name>:
+    build:
+      context: .
+      args:
+        USER_ID: "${USER_ID:-1000}"
+        GROUP_ID: "${GROUP_ID:-1000}"
+    ports:
+      - "3000:3000"
+    volumes: 
+      - ./<project_name>:/opt/app
+      - gem_cache_<project_name>:/gems
+    env_file: 
+      - .env/development/database_<project_name>
+      - .env/development/web_<project_name>
+    environment: 
+      - WEBPACKER_DEV_SERVER_HOST=webpack_dev_server_<project_name>
+    networks:
+      - network_<project_name>
+  webpack_dev_server_<project_name>:
+    build:
+      context: .
+      args:
+        USER_ID: "${USER_ID:-1000}"
+        GROUP_ID: "${GROUP_ID:-1000}"
+    command: ./bin/webpack-dev-server
+    ports: 
+      - "3035:3035"
+    volumes: 
+      - ./<project_name>:/opt/app
+      - gem_cache_<project_name>:/gems
+    env_file: 
+      - .env/development/database_<project_name>
+      - .env/development/web_<project_name>
+    environment: 
+      - WEBPACKER_DEV_SERVER_HOST=0.0.0.0
+    networks:
+      - network_<project_name>
+  database_<project_name>:
+    image: postgres
+    env_file: 
+      - .env/development/database_<project_name>
+    volumes: 
+      - db_data_<project_name>:/var/lib/postgresql/data
+    networks:
+      - network_<project_name>
+volumes: 
+  db_data_<project_name>:
+  gem_cache_<project_name>:
+networks:
+  network_<project_name>:
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.16.238.0/24"

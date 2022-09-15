@@ -1,0 +1,43 @@
+version: "3" 
+services:
+  web_<project_name>:
+    image: alexrogna/<project_name>_web:prod
+    expose:
+      - 3000
+    env_file:
+      - .env/production/database_<project_name>
+      - .env/production/web_<project_name>
+    environment:
+      - VIRTUAL_HOST=<project_name>.alexrogna.com
+      - VIRTUAL_PORT=3000
+      - LETSENCRYPT_HOST=<project_name>.alexrogna.com
+    networks:
+      - proxy
+    restart: always
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  database_<project_name>:
+    image: postgres
+    env_file:
+      - .env/production/database_<project_name>
+    volumes:
+      - db_data_<project_name>:/var/lib/postgresql/data
+    networks:
+      - proxy
+    restart: always
+    
+  db-migrator_<project_name>:
+    image: alexrogna/<project_name>_web:prod
+    command: ["./wait-for", "--timeout=300", "database_<project_name>:5432", "--", "bin/rails", "db:create" , "db:migrate"]
+    env_file:
+      - .env/production/database_<project_name>
+      - .env/production/web_<project_name>
+    networks:
+      - proxy
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+volumes:
+  db_data_<project_name>:
+networks:
+  proxy:
