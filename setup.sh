@@ -87,12 +87,12 @@ mv env_example/jenkins/database env_example/jenkins/database_$project_name
 cp -r env_example/ .env
 mv docker-compose-project_name.yml docker-compose-$project_name.yml
 
-# docker build -t rails-toolbox-$project_name --build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g) -f Dockerfile.rails .
-# docker run -it --rm -v $PWD:/opt/app rails-toolbox-$project_name rails new -d postgresql --skip-bundle $project_name
+docker build -t rails-toolbox-$project_name --build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g) -f Dockerfile.rails .
+docker run -it --rm -v $PWD:/opt/app rails-toolbox-$project_name rails new -d postgresql --skip-bundle $project_name
 
-# rm -r $project_name/.git
-# mv docker-entrypoint.sh $project_name
-# chmod +x $project_name/docker-entrypoint.sh
+rm -r $project_name/.git
+mv docker-entrypoint.sh $project_name
+chmod +x $project_name/docker-entrypoint.sh
 
 ####### this part doesn't working right now ######
 # grep -RiIl --exclude=setup.sh --exclude-dir=bkp 'pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>' | xargs sed -i 's/pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>/pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>\n  host: <%= ENV.fetch("DATABASE_HOST"){ "none" }  %>\n  username: <%= ENV.fetch("POSTGRES_USER"){ "none" }  %>\n  password: <%= ENV.fetch("POSTGRES_PASSWORD"){ "none" }  %>\n  database: <%= ENV.fetch("POSTGRES_DB"){ "none" }  %>\n  timeout: 5000/g'
@@ -105,5 +105,5 @@ mv docker-compose-project_name.yml docker-compose-$project_name.yml
 # '/''/g'
 ####### this part doesn't working right now ######
 
-# docker-compose run --rm web_$project_name bundle install
-# docker-compose run --rm --user "$(id -u):$(id -g)" web_$project_name bin/rails webpacker:install
+docker-compose run --rm web_$project_name bundle install
+docker-compose run --rm --user "$(id -u):$(id -g)" web_$project_name bin/rails webpacker:install
