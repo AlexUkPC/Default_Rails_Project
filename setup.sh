@@ -153,7 +153,7 @@ chmod +x $project_name/docker-entrypoint.sh
 ####### this part doesn't working right now ######
 
 docker-compose run --rm web_$project_name bundle install
-if [ $webpacker_choice ] || [ $webpacker_choice == "" ]
+if [ $webpacker_choice == false ] || [ $webpacker_choice == "" ]
 then
   docker-compose run --rm --user "$(id -u):$(id -g)" web_$project_name bin/rails webpacker:install
 fi
