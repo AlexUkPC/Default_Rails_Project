@@ -13,10 +13,19 @@ do
   read -p "Enter project id (3 digits between 000-255, eg. 001):" project_id
 done
 PS3="Select Ruby version:"
-select ruby_version in 2.7.2
+select ruby_version in 2.7.2 2.7.6 3.0.0 3.1.2
 do
   case $ruby_version in
     2.7.2)
+      break
+      ;;
+    2.7.6)
+      break
+      ;;
+    3.0.0)
+      break
+      ;;
+    3.1.2)
       break
       ;;
     *)
@@ -25,10 +34,19 @@ do
   esac
 done
 PS3="Select Rails version:"
-select rails_version in 6.1.3
+select rails_version in 6.1.3 6.1.7 7.0.0 7.0.4
 do
   case $rails_version in
     6.1.3)
+      break
+      ;;
+    6.1.7)
+      break
+      ;;
+    7.0.0)
+      break
+      ;;
+    7.0.4)
       break
       ;;
     *)
@@ -36,6 +54,30 @@ do
       ;;
   esac
 done
+
+if [[ $rails_version == 7* ]]
+  then
+  while [ "$webpacker_choice" != "y" ] && [ "$webpacker_choice" != "Y" ] && [ "$webpacker_choice" != "n" ] && [ "$webpacker_choice" != "N" ]
+  do
+    read -p "Do you want to use webpacker? (y/n):" webpacker_choice
+  done
+  if [ "$webpacker_choice" == "y" ] || [ "$webpacker_choice" == "Y" ]
+  then
+    use_webpacker=true
+    while [ "$sass_choice" != "y" ] && [ "$sass_choice" != "Y" ] && [ "$sass_choice" != "n" ] && [ "$sass_choice" != "N" ]
+    do
+      read -p "Do you want to use sass? (y/n):" sass_choice
+    done
+    if [ "$webpacker_choice" == "y" ] || [ "$webpacker_choice" == "Y" ]
+    then
+      use_sass=true
+    else
+      use_sass=false
+    fi
+  else
+    use_webpacker=false
+  fi
+fi
 
 read -p "Database [postgres]:" database
 database=${database:-postgres}
@@ -88,7 +130,11 @@ cp -r env_example/ .env
 mv docker-compose-project_name.yml docker-compose-$project_name.yml
 
 docker build -t rails-toolbox-$project_name --build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g) -f Dockerfile.rails .
-docker run -it --rm -v $PWD:/opt/app rails-toolbox-$project_name rails new -d postgresql --skip-bundle $project_name
+if [ $webpacker_choice ]
+  docker run -it --rm -v $PWD:/opt/app rails-toolbox-$project_name rails new --webpack -d postgresql --skip-bundle $project_name
+else
+  docker run -it --rm -v $PWD:/opt/app rails-toolbox-$project_name rails new -d postgresql --skip-bundle $project_name
+fi
 
 rm -r $project_name/.git
 mv docker-entrypoint.sh $project_name
@@ -106,4 +152,7 @@ chmod +x $project_name/docker-entrypoint.sh
 ####### this part doesn't working right now ######
 
 docker-compose run --rm web_$project_name bundle install
-docker-compose run --rm --user "$(id -u):$(id -g)" web_$project_name bin/rails webpacker:install
+if [ $webpacker_choice ] || [ $webpacker_choice == "" ]
+  docker-compose run --rm --user "$(id -u):$(id -g)" web_$project_name bin/rails webpacker:install
+fi
+
