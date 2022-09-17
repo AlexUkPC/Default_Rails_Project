@@ -25,9 +25,9 @@ do
   esac
 done
 PS3="Select Rails version:"
-select rails in 6.1.3
+select rails_version in 6.1.3
 do
-  case $rails in
+  case $rails_version in
     6.1.3)
       break
       ;;
