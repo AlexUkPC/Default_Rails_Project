@@ -1,4 +1,4 @@
-FROM ruby:2.7.2 AS <project_name>-development
+FROM ruby:<ruby_version> AS <project_name>-development
 LABEL maintainer="alexrogna@yahoo.com"
 
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg -o /root/yarn-pubkey.gpg && apt-key add /root/yarn-pubkey.gpg

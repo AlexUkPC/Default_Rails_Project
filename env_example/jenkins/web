@@ -1,0 +1,2 @@
+DATABASE_HOST=database_<project_name>
+DISABLE_SPRING=true

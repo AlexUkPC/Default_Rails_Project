@@ -1,0 +1,56 @@
+version: "3"
+services:
+  web_<project_name>_jenkins:
+    build:
+      context: .
+      args:
+        USER_ID: "${USER_ID:-1000}"
+        GROUP_ID: "${GROUP_ID:-1000}"
+    ports:
+      - "1<port>:3000"
+    volumes: 
+      - ./<project_name>_jenkins:/opt/app
+      - gem_cache_<project_name>_jenkins:/gems
+    env_file: 
+      - .env/jenkins/database_<project_name>
+      - .env/jenkins/web_<project_name>
+    environment: 
+      - WEBPACKER_DEV_SERVER_HOST=webpack_dev_server_<project_name>_jenkins
+    networks:
+      - network_<project_name>_jenkins
+  webpack_dev_server_<project_name>_jenkins:
+    build:
+      context: .
+      args:
+        USER_ID: "${USER_ID:-1000}"
+        GROUP_ID: "${GROUP_ID:-1000}"
+    command: ./bin/webpack-dev-server
+    ports: 
+      - "1<port_webpacker>:3035"
+    volumes: 
+      - ./<project_name>_jenkins:/opt/app
+      - gem_cache_<project_name>_jenkins:/gems
+    env_file: 
+      - .env/jenkins/database_<project_name>
+      - .env/jenkins/web_<project_name>
+    environment: 
+      - WEBPACKER_DEV_SERVER_HOST=0.0.0.0
+    networks:
+      - network_<project_name>_jenkins
+  database_<project_name>_jenkins:
+    image: postgres:<postgres_version>
+    env_file: 
+      - .env/jenkins/database_<project_name>
+    volumes: 
+      - db_data_<project_name>_jenkins:/var/lib/postgresql/data
+    networks:
+      - network_<project_name>_jenkins
+volumes: 
+  db_data_<project_name>_jenkins:
+  gem_cache_<project_name>_jenkins:
+networks:
+  network_<project_name>_jenkins:
+    ipam:
+      driver: default
+      config:
+        - subnet: "<jenkins_subnet>/24"

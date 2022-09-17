@@ -8,7 +8,35 @@ rm -rf Default_Rails_Project .git
 ##ask for webpacker server port
 read -p "Enter project name [untitled]:" project_name
 project_name=${project_name:-untitled}
-read -p "Enter project id (3 digits, eg. 001):" project_id
+while [ $((10#$project_id + 0)) -lt 0 ] || [ $((10#$project_id + 0)) -gt 255 ] || [ `expr length "$project_id"` -ne 3 ]
+do
+  read -p "Enter project id (3 digits between 000-255, eg. 001):" project_id
+done
+PS3="Select Ruby version:"
+select ruby_version in 2.7.2
+do
+  case $ruby_version in
+    2.7.2)
+      break
+      ;;
+    *)
+      echo "Invalid selection"
+      ;;
+  esac
+done
+PS3="Select Rails version:"
+select rails in 6.1.3
+do
+  case $rails in
+    6.1.3)
+      break
+      ;;
+    *)
+      echo "Invalid selection"
+      ;;
+  esac
+done
+
 read -p "Database [postgres]:" database
 database=${database:-postgres}
 if [ "$database" == "postgres" ]
@@ -20,34 +48,44 @@ then
   read -p "Enter postgres psw [password]:" postgres_psw
   postgres_psw=${postgres_psw:-password}
 fi
-read -p "Enter project port [3$project_id]:" project_port
-project_port=${project_port:-3$project_id}
-read -p "Enter project webpacker port [4$project_id]:" webpacker_port
-webpacker_port=${webpacker_port:-4$project_id}
-read -p "Enter project subnet [172.10.239.0]:" subnet
-subnet=${subnet:-3035}
-read -p "Enter project jenkins subnet [3035]:" jenkins_subnet
-jenkins_subnet=${jenkins_subnet:-3035}
+while [ "$choice" != "y" ] && [ "$choice" != "Y" ] && [ "$choice" != "n" ] && [ "$choice" != "N" ]
+do
+  read -p "Do you want to use the default ports and subnetworks generated from project id(project port: 3$project_id | webpacker port: 4$project_id | subnet: 172.10.$project_id.0 | jenkins subnet: 172.11.$project_id.0)? [y/n]:" choice
+  if [ "$choice" == "n" ] || [ "$choice" == "N" ]
+  then
+    read -p "Enter project port [3$project_id]:" project_port
+    read -p "Enter webpacker port [4$project_id]:" webpacker_port
+    read -p "Enter subnet [172.10.$project_id.0]:" subnet
+    read -p "Enter jenkins subnet [172.11.$project_id.0]:" jenkins_subnet
+  fi
+  project_port=${project_port:-3$project_id}
+  webpacker_port=${webpacker_port:-4$project_id}
+  subnet=${subnet:-172.10.$project_id.0}
+  jenkins_subnet=${jenkins_subnet:-172.11.$project_id.0}
+done
 
 ##replace <project_name>,dev db username and psw, port and webpacker port in all files
 ##rename files with <project_name> where needed
 
 grep -RiIl --exclude=setup.sh '<project_name>' | xargs sed -i 's/<project_name>/'$project_name'/g'
+grep -RiIl --exclude=setup.sh '<postgres_version>' | xargs sed -i 's/<postgres_version>/'$postgres_version'/g'
 grep -RiIl --exclude=setup.sh '<postgres_user>' | xargs sed -i 's/<postgres_user>/'$postgres_user'/g'
 grep -RiIl --exclude=setup.sh '<postgres_psw>' | xargs sed -i 's/<postgres_psw>/'$postgres_psw'/g'
 grep -RiIl --exclude=setup.sh '<port>' | xargs sed -i 's/<port>/'$project_port'/g'
 grep -RiIl --exclude=setup.sh '<port_webpacker>' | xargs sed -i 's/<port_webpacker>/'$webpacker_port'/g'
+grep -RiIl --exclude=setup.sh '<subnet>' | xargs sed -i 's/<subnet>/'$subnet'/g'
+grep -RiIl --exclude=setup.sh '<jenkins_subnet>' | xargs sed -i 's/<jenkins_subnet>/'$jenkins_subnet'/g'
+grep -RiIl --exclude=setup.sh '<ruby_version>' | xargs sed -i 's/<ruby_version>/'$ruby_version'/g'
+grep -RiIl --exclude=setup.sh '<rails_version>' | xargs sed -i 's/<rails_version>/'$rails_version'/g'
 
-# cp -r env_example/ .env
-# mv .env/development/web .env/development/web_$project_name
-# mv .env/development/database .env/development/database_$project_name
-# mv .env/production/web .env/production/web_$project_name
-# mv .env/production/database .env/production/database_$project_name
-# mv env_example/development/web env_example/development/web_$project_name
-# mv env_example/development/database env_example/development/database_$project_name
-# mv env_example/production/web env_example/production/web_$project_name
-# mv env_example/production/database env_example/production/database_$project_name
-# mv docker-compose-project_name.yml docker-compose-$project_name.yml
+mv env_example/development/web env_example/development/web_$project_name
+mv env_example/development/database env_example/development/database_$project_name
+mv env_example/production/web env_example/production/web_$project_name
+mv env_example/production/database env_example/production/database_$project_name
+mv env_example/jenkins/web env_example/jenkins/web_$project_name
+mv env_example/jenkins/database env_example/jenkins/database_$project_name
+cp -r env_example/ .env
+mv docker-compose-project_name.yml docker-compose-$project_name.yml
 
 # docker build -t rails-toolbox-$project_name --build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g) -f Dockerfile.rails .
 # docker run -it --rm -v $PWD:/opt/app rails-toolbox-$project_name rails new -d postgresql --skip-bundle $project_name

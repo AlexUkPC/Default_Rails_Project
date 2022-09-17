@@ -38,7 +38,7 @@ services:
     networks:
       - network_<project_name>
   database_<project_name>:
-    image: postgres
+    image: postgres:<postgres_version>
     env_file: 
       - .env/development/database_<project_name>
     volumes: 
@@ -53,4 +53,4 @@ networks:
     ipam:
       driver: default
       config:
-        - subnet: "172.16.238.0/24"
+        - subnet: "<subnet>/24"
