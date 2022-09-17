@@ -132,7 +132,7 @@ mv docker-compose-project_name.yml docker-compose-$project_name.yml
 docker build -t rails-toolbox-$project_name --build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g) -f Dockerfile.rails .
 if [ $webpacker_choice ]
 then
-  docker run -it --rm -v $PWD:/opt/app rails-toolbox-$project_name rails new -d postgresql --webpack --skip-bundle $project_name
+  docker run -it --rm -v $PWD:/opt/app rails-toolbox-$project_name rails new -d postgresql --skip-bundle $project_name --webpack
 else
   docker run -it --rm -v $PWD:/opt/app rails-toolbox-$project_name rails new -d postgresql --skip-bundle $project_name
 fi
