@@ -111,7 +111,7 @@ then
   grep -RiIl --exclude=setup.sh '<webpacker_jenkins>' | xargs sed -i 's/<webpacker_jenkins>//g'
   grep -RiIl --exclude=setup.sh '<webpacker_in_jenkins>' | xargs sed -i 's/<webpacker_in_jenkins>//g'
   grep -RiIl --exclude=setup.sh '<webpacker_in_steps>' | xargs sed -i 's/<webpacker_in_steps>//g'
-  grep -RiIl --exclude=setup.sh '<js_css>' | xargs sed -i 's/<js_css>/Js bundler: '$js_bundling'\nCss bundler:'$css_bundling'/g'
+  grep -RiIl --exclude=setup.sh '<js_css>' | xargs sed -i 's/<js_css>/Js bundler: '$js_bundling'\nCss bundler: '$css_bundling'/g'
 else
   grep -RiIl --exclude=setup.sh '<webpacker_env>' | xargs sed -i 's/<webpacker_env>/environment: \n      - WEBPACKER_DEV_SERVER_HOST=webpack_dev_server_<project_name>/g'
   grep -RiIl --exclude=setup.sh '<webpacker>' | xargs sed -i 's/<webpacker>/webpack_dev_server_<project_name>:\n    build:\n      context: .\n      args:\n        USER_ID: "${USER_ID:-1000}" \n        GROUP_ID: "${GROUP_ID:-1000}"\n    command: .\/bin\/webpack-dev-server\n    ports: \n      - "<port_webpacker>:3035"\n    volumes: \n      - .\/<project_name>:\/opt\/app\n      - gem_cache_<project_name>:\/gems\n    env_file: \n      - .env\/development\/database_<project_name>\n      - .env\/development\/web_<project_name>\n    environment: \n      - WEBPACKER_DEV_SERVER_HOST=0.0.0.0\n    networks:\n      - network_<project_name>/g'
