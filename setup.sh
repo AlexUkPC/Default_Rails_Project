@@ -176,7 +176,7 @@ docker build -t rails-toolbox-$project_name --build-arg USER_ID=$(id -u) --build
 
 if [ "$js_bundling" == "" ] || [ "$css_bundling" == "" ]
 then
-  sed -i 's/<rails_dev>/rails/g' Dockerfile
+  sed -i 's/<rails_dev>/rails", "s", "-b", "0.0.0.0/g' Dockerfile
   docker run -it --rm -v $PWD:/opt/app rails-toolbox-$project_name rails new -d postgresql --skip-bundle $project_name
 else
   if [ "$js_bundling" == "import_maps" ] && [ "$css_bundling" == "css" ]
@@ -226,6 +226,7 @@ else
       docker-compose run --rm --user "$(id -u):$(id -g)" web_$project_name bin/rails css:install:$css_bundling
     fi
   fi
+  sed -i 's/web: bin/rails server -b 3000/web: bin/rails server -b 0.0.0.0 -p 3000/g' $project_name/Procfile.dev
 fi
 
 sed -i 's/pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>/pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>\n  host: <%= ENV.fetch("DATABASE_HOST"){ none}  %>\n  username: <%= ENV.fetch("POSTGRES_USER"){ none}  %>\n  password: <%= ENV.fetch("POSTGRES_PASSWORD"){ none}  %>\n  database: <%= ENV.fetch("POSTGRES_DB"){ none}  %>\n  timeout: 5000/g' $project_name/config/database.yml
