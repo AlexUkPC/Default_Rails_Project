@@ -176,12 +176,15 @@ docker build -t rails-toolbox-$project_name --build-arg USER_ID=$(id -u) --build
 
 if [ "$js_bundling" == "" ] || [ "$css_bundling" == "" ]
 then
+  sed -i 's/<rails_dev>/rails/g' Dockerfile
   docker run -it --rm -v $PWD:/opt/app rails-toolbox-$project_name rails new -d postgresql --skip-bundle $project_name
 else
   if [ "$js_bundling" == "import_maps" ] && [ "$css_bundling" == "css" ]
   then
+    sed -i 's/<rails_dev>/rails/g' Dockerfile
     docker run -it --rm -v $PWD:/opt/app rails-toolbox-$project_name rails new -d postgresql --skip-bundle $project_name
   else
+    sed -i 's/<rails_dev>/dev/g' Dockerfile
     if [ "$js_bundling" != "import_maps" ] && [ "$css_bundling" == "css" ]
     then
       docker run -it --rm -v $PWD:/opt/app rails-toolbox-$project_name rails new -d postgresql --skip-bundle -j $js_bundling $project_name
@@ -210,6 +213,19 @@ then
   s/port: 3035\n    public: localhost:3035/port: '$webpacker_port'\n    public: localhost:'$webpacker_port'/
   }' $project_name/config/webpacker.yml
   sed -i "s/ignored: '\*\*\/node_modules\/\*\*'/ignored: '\*\*\/node_modules\/\*\*'\n      poll: true/g" $project_name/config/webpacker.yml
+else
+  if [ "$js_bundling" != "import_maps" ] && [ "$css_bundling" == "css" ]
+  then
+    docker-compose run --rm --user "$(id -u):$(id -g)" web_$project_name bin/rails javascript:install:$js_bundling
+  else
+    if [ "$js_bundling" == "import_maps" ] && [ "$css_bundling" != "css" ]
+    then
+      docker-compose run --rm --user "$(id -u):$(id -g)" web_$project_name bin/rails css:install:$css_bundling
+    else
+      docker-compose run --rm --user "$(id -u):$(id -g)" web_$project_name bin/rails javascript:install:$js_bundling
+      docker-compose run --rm --user "$(id -u):$(id -g)" web_$project_name bin/rails css:install:$css_bundling
+    fi
+  fi
 fi
 
 sed -i 's/pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>/pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>\n  host: <%= ENV.fetch("DATABASE_HOST"){ none}  %>\n  username: <%= ENV.fetch("POSTGRES_USER"){ none}  %>\n  password: <%= ENV.fetch("POSTGRES_PASSWORD"){ none}  %>\n  database: <%= ENV.fetch("POSTGRES_DB"){ none}  %>\n  timeout: 5000/g' $project_name/config/database.yml
