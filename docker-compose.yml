@@ -14,29 +14,10 @@ services:
     env_file: 
       - .env/development/database_<project_name>
       - .env/development/web_<project_name>
-    environment: 
-      - WEBPACKER_DEV_SERVER_HOST=webpack_dev_server_<project_name>
+    <webpacker_env>
     networks:
       - network_<project_name>
-  webpack_dev_server_<project_name>:
-    build:
-      context: .
-      args:
-        USER_ID: "${USER_ID:-1000}"
-        GROUP_ID: "${GROUP_ID:-1000}"
-    command: ./bin/webpack-dev-server
-    ports: 
-      - "<port_webpacker>:3035"
-    volumes: 
-      - ./<project_name>:/opt/app
-      - gem_cache_<project_name>:/gems
-    env_file: 
-      - .env/development/database_<project_name>
-      - .env/development/web_<project_name>
-    environment: 
-      - WEBPACKER_DEV_SERVER_HOST=0.0.0.0
-    networks:
-      - network_<project_name>
+  <webpacker>
   database_<project_name>:
     image: postgres:<postgres_version>
     env_file: 

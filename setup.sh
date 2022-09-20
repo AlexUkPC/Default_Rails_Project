@@ -56,27 +56,106 @@ do
 done
 
 if [[ $rails_version == 7* ]]
-  then
-  while [ "$webpacker_choice" != "y" ] && [ "$webpacker_choice" != "Y" ] && [ "$webpacker_choice" != "n" ] && [ "$webpacker_choice" != "N" ]
+then
+# ==== 1 ====
+#   while [ "$webpacker_choice" != "y" ] && [ "$webpacker_choice" != "Y" ] && [ "$webpacker_choice" != "n" ] && [ "$webpacker_choice" != "N" ]
+#   do
+#     read -p "Do you want to use webpacker? (y/n):" webpacker_choice
+#   done
+#   if [ "$webpacker_choice" == "y" ] || [ "$webpacker_choice" == "Y" ]
+#   then
+#     use_webpacker=true
+#     while [ "$sass_choice" != "y" ] && [ "$sass_choice" != "Y" ] && [ "$sass_choice" != "n" ] && [ "$sass_choice" != "N" ]
+#     do
+#       read -p "Do you want to use sass? (y/n):" sass_choice
+#     done
+#     if [ "$webpacker_choice" == "y" ] || [ "$webpacker_choice" == "Y" ]
+#     then
+#       use_sass=true
+#     else
+#       use_sass=false
+#     fi
+#   else
+#     use_webpacker=false
+#   fi
+# fi
+# 
+# === 2 ===
+# if [[ $rails_version == 6* ]]
+# then
+#   PS3="Select what to use as js helpers:"
+#   select js_helpers in turbolinks_ujs hotwire
+#   do
+#     case $js_helpers in
+#       turbolinks_ujs)
+#         break
+#         ;;
+#       hotwire)
+#         break
+#         ;;
+#       *)
+#         echo "Invalid selection"
+#         ;;
+#     esac
+#   done  
+# else
+  PS3="Select what to use as js bundling:"
+  select js_bundling in import_maps webpack esbuild rollup
   do
-    read -p "Do you want to use webpacker? (y/n):" webpacker_choice
+    case $js_bundling in
+      import_maps)
+        break
+        ;;
+      webpack)
+        break
+        ;;
+      esbuild)
+        break
+        ;;
+      rollup)
+        break
+        ;;
+      *)
+        echo "Invalid selection"
+        ;;
+    esac
   done
-  if [ "$webpacker_choice" == "y" ] || [ "$webpacker_choice" == "Y" ]
-  then
-    use_webpacker=true
-    while [ "$sass_choice" != "y" ] && [ "$sass_choice" != "Y" ] && [ "$sass_choice" != "n" ] && [ "$sass_choice" != "N" ]
-    do
-      read -p "Do you want to use sass? (y/n):" sass_choice
-    done
-    if [ "$webpacker_choice" == "y" ] || [ "$webpacker_choice" == "Y" ]
-    then
-      use_sass=true
-    else
-      use_sass=false
-    fi
-  else
-    use_webpacker=false
-  fi
+  PS3="Select what to use as css bundling:"
+  select css_bundling in css tailwindcss bootstrap bulma postcss dartsass
+  do
+    case $css_bundling in
+      css)
+        break
+        ;;
+      tailwindcss)
+        break
+        ;;
+      bootstrap)
+        break
+        ;;
+      bulma)
+        break
+        ;;
+      postcss)
+        break
+        ;;
+      dartsass)
+        break
+        ;;
+      *)
+        echo "Invalid selection"
+        ;;
+    esac
+  done
+  grep -RiIl --exclude=setup.sh '<webpacker_env>' | xargs sed -i 's/<webpacker_env>//g'
+  grep -RiIl --exclude=setup.sh '<webpacker>' | xargs sed -i 's/<webpacker>//g'
+  grep -RiIl --exclude=setup.sh '<webpacker_env_jenkins>' | xargs sed -i 's/<webpacker_env_jenkins>//g'
+  grep -RiIl --exclude=setup.sh '<webpacker_jenkins>' | xargs sed -i 's/<webpacker_jenkins>//g'
+else
+  grep -RiIl --exclude=setup.sh '<webpacker_env>' | xargs sed -i 's/<webpacker_env>/environment: \n      - WEBPACKER_DEV_SERVER_HOST=webpack_dev_server_<project_name>/g'
+  grep -RiIl --exclude=setup.sh '<webpacker>' | xargs sed -i 's/<webpacker>/webpack_dev_server_<project_name>:\n    build:\n      context: .\n      args:\n        USER_ID: "${USER_ID:-1000}" \n        GROUP_ID: "${GROUP_ID:-1000}"\n    command: .\/bin\/webpack-dev-server\n    ports: \n      - "<port_webpacker>:3035"\n    volumes: \n      - .\/<project_name>:\/opt\/app\n      - gem_cache_<project_name>:\/gems\n    env_file: \n      - .env\/development\/database_<project_name>\n      - .env\/development\/web_<project_name>\n    environment: \n      - WEBPACKER_DEV_SERVER_HOST=0.0.0.0\n    networks:\n      - network_<project_name>/g'
+  grep -RiIl --exclude=setup.sh '<webpacker_env_jenkins>' | xargs sed -i 's/<webpacker_env_jenkins>/environment: \n      - WEBPACKER_DEV_SERVER_HOST=webpack_dev_server_<project_name>_jenkins/g'
+  grep -RiIl --exclude=setup.sh '<webpacker_jenkins>' | xargs sed -i 's/<webpacker_jenkins>/webpack_dev_server_<project_name>_jenkins:\n    build:\n      context: .\n      args:\n        USER_ID: "${USER_ID:-1000}"\n        GROUP_ID: "${GROUP_ID:-1000}"\n    command: ./bin/webpack-dev-server\n    ports: \n      - "1<port_webpacker>:3035"\n    volumes: \n      - ./<project_name>_jenkins:/opt/app\n      - gem_cache_<project_name>_jenkins:/gems\n    env_file: \n      - .env/jenkins/database_<project_name>\n      - .env/jenkins/web_<project_name>\n    environment: \n      - WEBPACKER_DEV_SERVER_HOST=0.0.0.0\n    networks:\n      - network_<project_name>_jenkins/g'
 fi
 
 read -p "Database [postgres]:" database
@@ -130,11 +209,27 @@ cp -r env_example/ .env
 mv docker-compose-project_name.yml docker-compose-$project_name.yml
 
 docker build -t rails-toolbox-$project_name --build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g) -f Dockerfile.rails .
-if [ $webpacker_choice ]
+
+if [ "$js_bundling" == "" ] || [ "$css_bundling" == "" ]
 then
-  docker run -it --rm -v $PWD:/opt/app rails-toolbox-$project_name rails new -d postgresql -j webpack --skip-bundle $project_name
-else
   docker run -it --rm -v $PWD:/opt/app rails-toolbox-$project_name rails new -d postgresql --skip-bundle $project_name
+else
+  if [ "$js_bundling" == "import_maps" ] && [ "$css_bundling" == "css" ]
+  then
+    docker run -it --rm -v $PWD:/opt/app rails-toolbox-$project_name rails new -d postgresql --skip-bundle $project_name
+  else
+    if [ "$js_bundling" != "import_maps" ] && [ "$css_bundling" == "css" ]
+    then
+      docker run -it --rm -v $PWD:/opt/app rails-toolbox-$project_name rails new -d postgresql --skip-bundle -j $js_bundling $project_name
+    else
+      if [ "$js_bundling" == "import_maps" ] && [ "$css_bundling" != "css" ]
+      then
+        docker run -it --rm -v $PWD:/opt/app rails-toolbox-$project_name rails new -d postgresql --skip-bundle  -c $css_bundling $project_name
+      else
+        docker run -it --rm -v $PWD:/opt/app rails-toolbox-$project_name rails new -d postgresql --skip-bundle -j $js_bundling -c $css_bundling $project_name
+      fi
+    fi
+  fi
 fi
 
 rm -r $project_name/.git
@@ -153,7 +248,7 @@ chmod +x $project_name/docker-entrypoint.sh
 ####### this part doesn't working right now ######
 
 docker-compose run --rm web_$project_name bundle install
-if [ $webpacker_choice == false ] || [ $webpacker_choice == "" ]
+if [ "$js_bundling" == "" ] || [ "$css_bundling" == "" ]
 then
   docker-compose run --rm --user "$(id -u):$(id -g)" web_$project_name bin/rails webpacker:install
 fi
