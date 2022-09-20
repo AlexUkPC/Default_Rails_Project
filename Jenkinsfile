@@ -11,11 +11,7 @@ pipeline {
                 sh '/usr/local/bin/docker-compose run --rm web_<project_name> bundle install'
             }
         }
-        stage('Webpacker Install') {
-            steps {
-                sh '/usr/local/bin/docker-compose run --rm web_<project_name> bin/rails webpacker:install'
-            }
-        }
+        <webpacker_in_jenkins>
         stage('Stop old containers') {
             steps {
                 sh '/usr/local/bin/docker-compose stop'
