@@ -57,48 +57,6 @@ done
 
 if [[ $rails_version == 7* ]]
 then
-# ==== 1 ====
-#   while [ "$webpacker_choice" != "y" ] && [ "$webpacker_choice" != "Y" ] && [ "$webpacker_choice" != "n" ] && [ "$webpacker_choice" != "N" ]
-#   do
-#     read -p "Do you want to use webpacker? (y/n):" webpacker_choice
-#   done
-#   if [ "$webpacker_choice" == "y" ] || [ "$webpacker_choice" == "Y" ]
-#   then
-#     use_webpacker=true
-#     while [ "$sass_choice" != "y" ] && [ "$sass_choice" != "Y" ] && [ "$sass_choice" != "n" ] && [ "$sass_choice" != "N" ]
-#     do
-#       read -p "Do you want to use sass? (y/n):" sass_choice
-#     done
-#     if [ "$webpacker_choice" == "y" ] || [ "$webpacker_choice" == "Y" ]
-#     then
-#       use_sass=true
-#     else
-#       use_sass=false
-#     fi
-#   else
-#     use_webpacker=false
-#   fi
-# fi
-# 
-# === 2 ===
-# if [[ $rails_version == 6* ]]
-# then
-#   PS3="Select what to use as js helpers:"
-#   select js_helpers in turbolinks_ujs hotwire
-#   do
-#     case $js_helpers in
-#       turbolinks_ujs)
-#         break
-#         ;;
-#       hotwire)
-#         break
-#         ;;
-#       *)
-#         echo "Invalid selection"
-#         ;;
-#     esac
-#   done  
-# else
   PS3="Select what to use as js bundling:"
   select js_bundling in import_maps webpack esbuild rollup
   do
@@ -242,20 +200,23 @@ rm -r $project_name/.git
 mv docker-entrypoint.sh $project_name
 chmod +x $project_name/docker-entrypoint.sh
 
-####### this part doesn't working right now ######
-# grep -RiIl --exclude=setup.sh --exclude-dir=bkp 'pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>' | xargs sed -i 's/pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>/pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>\n  host: <%= ENV.fetch("DATABASE_HOST"){ "none" }  %>\n  username: <%= ENV.fetch("POSTGRES_USER"){ "none" }  %>\n  password: <%= ENV.fetch("POSTGRES_PASSWORD"){ "none" }  %>\n  database: <%= ENV.fetch("POSTGRES_DB"){ "none" }  %>\n  timeout: 5000/g'
-# grep -RiIl --exclude=setup.sh --exclude-dir=bkp 'database: '$project_name'_development' | xargs sed -i 's/database: '$project_name'_development/''/g'
-# grep -RiIl --exclude=setup.sh --exclude-dir=bkp << EndOfMessage database: '$project_name'_production\n  username: '$project_name'\n  password: <%= ENV['
-# EndOfMessage
-# $project_name^^<< EndOfMessage _DATABASE_PASSWORD''] %> 
-# EndOfMessage | xargs sed -i 's/'<< EndOfMessage database: '$project_name'_production\n  username: '$project_name'\n  password: <%= ENV['
-# EndOfMessage
-# '/''/g'
-####### this part doesn't working right now ######
 
 docker-compose run --rm web_$project_name bundle install
 if [ "$js_bundling" == "" ] || [ "$css_bundling" == "" ]
 then
   docker-compose run --rm --user "$(id -u):$(id -g)" web_$project_name bin/rails webpacker:install
+  sed -i '/port: 3035/{
+  N 
+  s/port: 3035\n    public: localhost:3035/port: '$webpacker_port'\n    public: localhost:'$webpacker_port'/
+  }' $project_name/config/webpacker.yml
+  sed -i "s/ignored: '\*\*\/node_modules\/\*\*'/ignored: '\*\*\/node_modules\/\*\*'\n      poll: true/g" $project_name/config/webpacker.yml
 fi
 
+sed -i 's/pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>/pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>\n  host: <%= ENV.fetch("DATABASE_HOST"){ none}  %>\n  username: <%= ENV.fetch("POSTGRES_USER"){ none}  %>\n  password: <%= ENV.fetch("POSTGRES_PASSWORD"){ none}  %>\n  database: <%= ENV.fetch("POSTGRES_DB"){ none}  %>\n  timeout: 5000/g' $project_name/config/database.yml
+sed -i 's/database: '$project_name'_development//g' $project_name/config/database.yml
+sed -i 's/database: '$project_name'_test//g' $project_name/config/database.yml
+sed -i 's/database: '$project_name'_production//g' $project_name/config/database.yml
+sed -i 's/username: '$project_name'//g' $project_name/config/database.yml
+sed -i "s/password: <%= ENV\['"${project_name^^}"_DATABASE_PASSWORD'\] %>//g" $project_name/config/database.yml
+
+docker-compose up
