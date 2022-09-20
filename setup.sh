@@ -226,7 +226,7 @@ else
       docker-compose run --rm web_$project_name bin/rails css:install:$css_bundling
     fi
   fi
-  sed -i 's/web: bin\/rails server -b 3000/web: bin\/rails server -b 0.0.0.0 -p 3000/g' $project_name/Procfile.dev
+  sed -i 's/web: bin\/rails server -p 3000/web: bin\/rails server -p 3000 -b 0.0.0.0 /g' $project_name/Procfile.dev
 fi
 
 sed -i 's/pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>/pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>\n  host: <%= ENV.fetch("DATABASE_HOST"){ none}  %>\n  username: <%= ENV.fetch("POSTGRES_USER"){ none}  %>\n  password: <%= ENV.fetch("POSTGRES_PASSWORD"){ none}  %>\n  database: <%= ENV.fetch("POSTGRES_DB"){ none}  %>\n  timeout: 5000/g' $project_name/config/database.yml
