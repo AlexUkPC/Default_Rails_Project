@@ -79,7 +79,7 @@ then
     esac
   done
   PS3="Select what to use as css bundling:"
-  select css_bundling in css tailwindcss bootstrap bulma postcss dartsass
+  select css_bundling in css tailwind bootstrap bulma postcss sass
   do
     case $css_bundling in
       css)
