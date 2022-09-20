@@ -85,7 +85,7 @@ then
       css)
         break
         ;;
-      tailwindcss)
+      tailwind)
         break
         ;;
       bootstrap)
@@ -97,7 +97,7 @@ then
       postcss)
         break
         ;;
-      dartsass)
+      sass)
         break
         ;;
       *)
