@@ -216,14 +216,14 @@ then
 else
   if [ "$js_bundling" != "import_maps" ] && [ "$css_bundling" == "css" ]
   then
-    docker-compose run --rm --user "$(id -u):$(id -g)" web_$project_name bin/rails javascript:install:$js_bundling
+    docker-compose run --rm web_$project_name bin/rails javascript:install:$js_bundling
   else
     if [ "$js_bundling" == "import_maps" ] && [ "$css_bundling" != "css" ]
     then
-      docker-compose run --rm --user "$(id -u):$(id -g)" web_$project_name bin/rails css:install:$css_bundling
+      docker-compose run --rm web_$project_name bin/rails css:install:$css_bundling
     else
-      docker-compose run --rm --user "$(id -u):$(id -g)" web_$project_name bin/rails javascript:install:$js_bundling
-      docker-compose run --rm --user "$(id -u):$(id -g)" web_$project_name bin/rails css:install:$css_bundling
+      docker-compose run --rm web_$project_name bin/rails javascript:install:$js_bundling
+      docker-compose run --rm web_$project_name bin/rails css:install:$css_bundling
     fi
   fi
   sed -i 's/web: bin\/rails server -b 3000/web: bin\/rails server -b 0.0.0.0 -p 3000/g' $project_name/Procfile.dev
