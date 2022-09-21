@@ -202,7 +202,41 @@ fi
 rm -r $project_name/.git
 mv docker-entrypoint.sh $project_name
 chmod +x $project_name/docker-entrypoint.sh
-
+if [ "$js_bundling" == "import_maps" ] && [ "$css_bundling" == "css" ]
+then
+  grep -RiIl --exclude=setup.sh '<node_and_yarn>' | xargs sed -i 's/<node_and_yarn>//g'
+  grep -RiIl --exclude=setup.sh '<node_and_yarn_install>' | xargs sed -i 's/<node_and_yarn_install>//g'
+  sed -i 's/<node>//g' README.md
+  sed -i 's/<yarn>//g' README.md
+else
+  PS3="Select Node version:"
+  select node_version in 16 18 20 lts
+  do
+    case $node_version in
+      16)
+        break
+        ;;
+      18)
+        break
+        ;;
+      20)
+        break
+        ;;
+      lts)
+        break
+        ;;
+      *)
+        echo "Invalid selection"
+        ;;
+    esac
+  done
+  grep -RiIl --exclude=setup.sh '<node_and_yarn>' | xargs sed -i 's/<node_and_yarn>/RUN curl -sS https:\/\/dl.yarnpkg.com\/debian\/pubkey.gpg -o \/root\/yarn-pubkey.gpg && apt-key add \/root\/yarn-pubkey.gpg\nRUN echo "deb https:\/\/dl.yarnpkg.com\/debian\/ stable main" > \/etc\/apt\/sources.list.d\/yarn.list\nRUN curl -fsSL https:\/\/deb.nodesource.com\/setup_'$node_version'>.x | bash -\n/g'
+  grep -RiIl --exclude=setup.sh '<node_and_yarn_install>' | xargs sed -i 's/<node_and_yarn_install>/ nodejs yarn/g'
+  node_v=docker-compose run --rm --user "$(id -u):$(id -g)" web_$project_name node -v
+  yarn_v=docker-compose run --rm --user "$(id -u):$(id -g)" web_$project_name yarn -v
+  sed -i 's/<node>/'$node_v'/g' README.md
+  sed -i 's/<yarn>/'$yarn_v'/g' README.md
+fi
 
 docker-compose run --rm web_$project_name bundle install
 if [ "$js_bundling" == "" ] || [ "$css_bundling" == "" ]

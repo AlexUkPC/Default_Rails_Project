@@ -1,10 +1,8 @@
 FROM ruby:<ruby_version> AS <project_name>-development
 LABEL maintainer="alexrogna@yahoo.com"
 
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg -o /root/yarn-pubkey.gpg && apt-key add /root/yarn-pubkey.gpg
-RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list
-RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
-RUN apt-get update -yqq && apt-get install -yqq --no-install-recommends nodejs yarn
+<node_and_yarn>
+RUN apt-get update -yqq && apt-get install -yqq --no-install-recommends<node_and_yarn_install> netcat
 
 ARG USER_ID
 ARG GROUP_ID
