@@ -232,6 +232,8 @@ else
   grep -RiIl --exclude=setup.sh '<node_and_yarn_install>' | xargs sed -i 's/<node_and_yarn_install>/ nodejs yarn/g'
   node_v=$(docker-compose run --rm --user "$(id -u):$(id -g)" web_$project_name node -v)
   yarn_v=$(docker-compose run --rm --user "$(id -u):$(id -g)" web_$project_name yarn -v)
+  echo "Node version: $node_v"
+  echo "Yarn version: $yarn_v"
   sed -i 's/<node>/Node: '$node_v'/g' README.md
   sed -i 's/<yarn>/Yarn: '$yarn_v'/g' README.md
 fi
