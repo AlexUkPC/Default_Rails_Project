@@ -110,7 +110,6 @@ then
   grep -RiIl --exclude=setup.sh '<webpacker_env_jenkins>' | xargs sed -i 's/<webpacker_env_jenkins>//g'
   grep -RiIl --exclude=setup.sh '<webpacker_jenkins>' | xargs sed -i 's/<webpacker_jenkins>//g'
   grep -RiIl --exclude=setup.sh '<webpacker_in_jenkins>' | xargs sed -i 's/<webpacker_in_jenkins>//g'
-  grep -RiIl --exclude=setup.sh '<webpacker_in_steps>' | xargs sed -i 's/<webpacker_in_steps>//g'
   grep -RiIl --exclude=setup.sh '<js_css>' | xargs sed -i 's/<js_css>/Js bundler: '$js_bundling'\nCss bundler: '$css_bundling'/g'
 else
   grep -RiIl --exclude=setup.sh '<webpacker_env>' | xargs sed -i 's/<webpacker_env>/environment: \n      - WEBPACKER_DEV_SERVER_HOST=webpack_dev_server_<project_name>/g'
@@ -118,7 +117,6 @@ else
   grep -RiIl --exclude=setup.sh '<webpacker_env_jenkins>' | xargs sed -i 's/<webpacker_env_jenkins>/environment: \n      - WEBPACKER_DEV_SERVER_HOST=webpack_dev_server_<project_name>_jenkins/g'
   grep -RiIl --exclude=setup.sh '<webpacker_jenkins>' | xargs sed -i 's/<webpacker_jenkins>/webpack_dev_server_<project_name>_jenkins:\n    build:\n      context: .\n      args:\n        USER_ID: "${USER_ID:-1000}"\n        GROUP_ID: "${GROUP_ID:-1000}"\n    command: .\/bin\/webpack-dev-server\n    ports: \n      - "1<port_webpacker>:3035"\n    volumes: \n      - .\/<project_name>_jenkins:\/opt\/app\n      - gem_cache_<project_name>_jenkins:\/gems\n    env_file: \n      - .env\/jenkins\/database_<project_name>\n      - .env\/jenkins\/web_<project_name>\n    environment: \n      - WEBPACKER_DEV_SERVER_HOST=0.0.0.0\n    networks:\n      - network_<project_name>_jenkins/g'
   grep -RiIl --exclude=setup.sh '<webpacker_in_jenkins>' | xargs sed -i "s/<webpacker_in_jenkins>/stage('Webpacker Install') {\n            steps {\n                sh '\/usr\/local\/bin\/docker-compose run --rm web_<project_name> bin\/rails webpacker:install'\n            }\n        }/g"
-  grep -RiIl --exclude=setup.sh '<webpacker_in_steps>' | xargs sed -i 's/<webpacker_in_steps>/- [ ]  Config Webpacker\n    in config\/webpacker.yml\n    ```\n    development:\n        ...\n        dev_server:\n            ...\n            port: 3035 #change this to <port_webpacker>\n            public: localhost:3035 #change this to <port_webpacker>\n            ...\n            watch_options:\n                ...\n                poll: true #add this row\n    ```/g'
   grep -RiIl --exclude=setup.sh '<js_css>' | xargs sed -i 's/<js_css>/Webpacker/g'
 fi
 
@@ -230,7 +228,7 @@ else
         ;;
     esac
   done
-  grep -RiIl --exclude=setup.sh '<node_and_yarn>' | xargs sed -i 's/<node_and_yarn>/RUN curl -sS https:\/\/dl.yarnpkg.com\/debian\/pubkey.gpg -o \/root\/yarn-pubkey.gpg && apt-key add \/root\/yarn-pubkey.gpg\nRUN echo "deb https:\/\/dl.yarnpkg.com\/debian\/ stable main" > \/etc\/apt\/sources.list.d\/yarn.list\nRUN curl -fsSL https:\/\/deb.nodesource.com\/setup_'$node_version'>.x | bash -\n/g'
+  grep -RiIl --exclude=setup.sh '<node_and_yarn>' | xargs sed -i 's/<node_and_yarn>/RUN curl -sS https:\/\/dl.yarnpkg.com\/debian\/pubkey.gpg -o \/root\/yarn-pubkey.gpg \&\& apt-key add \/root\/yarn-pubkey.gpg\nRUN echo "deb https:\/\/dl.yarnpkg.com\/debian\/ stable main" > \/etc\/apt\/sources.list.d\/yarn.list\nRUN curl -fsSL https:\/\/deb.nodesource.com\/setup_'$node_version'.x | bash -\n/g'
   grep -RiIl --exclude=setup.sh '<node_and_yarn_install>' | xargs sed -i 's/<node_and_yarn_install>/ nodejs yarn/g'
   node_v=docker-compose run --rm --user "$(id -u):$(id -g)" web_$project_name node -v
   yarn_v=docker-compose run --rm --user "$(id -u):$(id -g)" web_$project_name yarn -v
