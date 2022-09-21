@@ -230,6 +230,13 @@ else
   done
   grep -RiIl --exclude=setup.sh '<node_and_yarn>' | xargs sed -i 's/<node_and_yarn>/RUN curl -sS https:\/\/dl.yarnpkg.com\/debian\/pubkey.gpg -o \/root\/yarn-pubkey.gpg \&\& apt-key add \/root\/yarn-pubkey.gpg\nRUN echo "deb https:\/\/dl.yarnpkg.com\/debian\/ stable main" > \/etc\/apt\/sources.list.d\/yarn.list\nRUN curl -fsSL https:\/\/deb.nodesource.com\/setup_'$node_version'.x | bash -\n/g'
   grep -RiIl --exclude=setup.sh '<node_and_yarn_install>' | xargs sed -i 's/<node_and_yarn_install>/ nodejs yarn/g'
+fi
+
+docker-compose run --rm web_$project_name bundle install
+if [ "$js_bundling" == "import_maps" ] && [ "$css_bundling" == "css" ]
+then
+  break
+else
   node_v=$(docker-compose run --rm --user "$(id -u):$(id -g)" web_$project_name node -v)
   echo "Node version: $node_v"
   sed -i 's/<node>/Node: '$node_v'/g' README.md
@@ -237,8 +244,6 @@ else
   echo "Yarn version: $yarn_v"
   sed -i 's/<yarn>/Yarn: '$yarn_v'/g' README.md
 fi
-
-docker-compose run --rm web_$project_name bundle install
 if [ "$js_bundling" == "" ] || [ "$css_bundling" == "" ]
 then
   docker-compose run --rm --user "$(id -u):$(id -g)" web_$project_name bin/rails webpacker:install
