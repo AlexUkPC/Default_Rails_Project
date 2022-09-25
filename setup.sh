@@ -249,7 +249,7 @@ then
   docker-compose run --rm --user "$(id -u):$(id -g)" web_$project_name bin/rails webpacker:install
   sed -i '/port: 3035/{
   N 
-  s/port: 3035\n    public: localhost:3035/port: '$webpacker_port'\n    public: localhost:'$webpacker_port'/
+  s/port: 3035\n    public: localhost:3035/port: '$webpacker_port'\n    public: 0.0.0.0:'$webpacker_port'/
   }' $project_name/config/webpacker.yml
   sed -i "s/ignored: '\*\*\/node_modules\/\*\*'/ignored: '\*\*\/node_modules\/\*\*'\n      poll: true/g" $project_name/config/webpacker.yml
 else
