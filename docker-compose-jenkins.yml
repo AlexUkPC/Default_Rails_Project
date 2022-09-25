@@ -9,7 +9,7 @@ services:
     ports:
       - "1<port>:3000"
     volumes: 
-      - ./<project_name>_jenkins:/opt/app
+      - ./<project_name>:/opt/app
       - gem_cache_<project_name>_jenkins:/gems
     env_file: 
       - .env/jenkins/database_<project_name>
