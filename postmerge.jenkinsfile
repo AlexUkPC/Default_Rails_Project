@@ -16,6 +16,9 @@ pipeline {
             }
             steps {
                 script {
+                    sh 'chmod +x *.sh'
+                    sh 'chmod +x <project_name>/docker-entrypoint.sh'
+                    sh 'chmod +x <project_name>/bin/*'
                     version_g = sh (
                         script: 'sh get-next-version.sh',
                         returnStdout: true
@@ -47,7 +50,9 @@ pipeline {
             steps {
                 sh """
                     export version_s=\$(cat version_f)
-
+                    chmod +x *.sh
+                    chmod +x <project_name>/docker-entrypoint.sh
+                    chmod +x <project_name>/bin/*
                     ./package.sh \${version_s}
                     ./integration-test.sh
 
