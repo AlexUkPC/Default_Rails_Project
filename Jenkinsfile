@@ -67,10 +67,5 @@ pipeline {
                 sh '/usr/local/bin/docker-compose -f docker-compose-jenkins.yml exec -T --user "$(id -u):$(id -g)" web_<project_name>_jenkins bin/rails test:models'
             }   
         } 
-        stage('Stop containers') {
-            steps {
-                sh '/usr/local/bin/docker-compose -f docker-compose-jenkins.yml stop'
-            }
-        }
     }
 }
