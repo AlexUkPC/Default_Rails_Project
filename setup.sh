@@ -238,10 +238,8 @@ then
   break
 else
   node_v=$(docker-compose run --rm --user "$(id -u):$(id -g)" web_$project_name node -v)
-  echo "Node version: $node_v"
   sed -i 's/<node>/Node: '$node_v'/g' README.md
   yarn_v=$(docker-compose run --rm --user "$(id -u):$(id -g)" web_$project_name yarn -v)
-  echo "Yarn version: $yarn_v"
   sed -i 's/<yarn>/Yarn: '$yarn_v'/g' README.md
 fi
 if [ "$js_bundling" == "" ] || [ "$css_bundling" == "" ]
