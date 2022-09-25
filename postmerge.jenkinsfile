@@ -10,7 +10,7 @@ pipeline {
         stage('Get next version') {
             agent {
                 dockerfile {
-                    label 'docker'
+                    label 'ssh'
                     filename 'git.dockerfile'
                 }
             }
@@ -65,7 +65,7 @@ pipeline {
             }
         }
         stage('Push git tag') {
-            agent { label 'docker' }
+            agent { label 'ssh' }
             steps {
                 script {
                     try {
