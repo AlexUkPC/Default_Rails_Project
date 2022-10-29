@@ -141,6 +141,7 @@ then
   read -p "Enter postgres psw [password]:" postgres_psw
   postgres_psw=${postgres_psw:-password}
 fi
+choice=""
 while [ "$choice" != "y" ] && [ "$choice" != "Y" ] && [ "$choice" != "n" ] && [ "$choice" != "N" ]
 do
   read -p "Do you want to use the default ports and subnetworks generated from project id(project port: 3$project_id | webpacker port: 4$project_id | subnet: 172.10.$project_id.0 | jenkins subnet: 172.11.$project_id.0)? [y/n]:" choice
