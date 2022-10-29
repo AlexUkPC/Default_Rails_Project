@@ -8,6 +8,16 @@ rm -rf Default_Rails_Project .git
 ##ask for webpacker server port
 read -p "Enter project name [untitled]:" project_name
 project_name=${project_name:-untitled}
+while [ "$choice" != "y" ] && [ "$choice" != "Y" ] && [ "$choice" != "n" ] && [ "$choice" != "N" ]
+do
+  read -p "Is this an API only app?" choice
+  if [ "$choice" == "y" ] || [ "$choice" == "Y" ]
+  then
+    api="--api"
+  else
+    api=""
+  fi
+done
 while [ $((10#$project_id + 0)) -lt 0 ] || [ $((10#$project_id + 0)) -gt 255 ] || [ `expr length "$project_id"` -ne 3 ]
 do
   read -p "Enter project id (3 digits between 000-255, eg. 001):" project_id
@@ -175,23 +185,23 @@ docker build -t rails-toolbox-$project_name --build-arg USER_ID=$(id -u) --build
 if [ "$js_bundling" == "" ] || [ "$css_bundling" == "" ]
 then
   sed -i 's/<rails_dev>/rails", "s", "-b", "0.0.0.0/g' Dockerfile
-  docker run -it --rm -v $PWD:/opt/app rails-toolbox-$project_name rails new -d postgresql --skip-bundle $project_name
+  docker run -it --rm -v $PWD:/opt/app rails-toolbox-$project_name rails new $api -d postgresql --skip-bundle $project_name
 else
   if [ "$js_bundling" == "import_maps" ] && [ "$css_bundling" == "css" ]
   then
     sed -i 's/<rails_dev>/rails/g' Dockerfile
-    docker run -it --rm -v $PWD:/opt/app rails-toolbox-$project_name rails new -d postgresql --skip-bundle $project_name
+    docker run -it --rm -v $PWD:/opt/app rails-toolbox-$project_name rails new $api -d postgresql --skip-bundle $project_name
   else
     sed -i 's/<rails_dev>/dev/g' Dockerfile
     if [ "$js_bundling" != "import_maps" ] && [ "$css_bundling" == "css" ]
     then
-      docker run -it --rm -v $PWD:/opt/app rails-toolbox-$project_name rails new -d postgresql --skip-bundle -j $js_bundling $project_name
+      docker run -it --rm -v $PWD:/opt/app rails-toolbox-$project_name rails new $api -d postgresql --skip-bundle -j $js_bundling $project_name
     else
       if [ "$js_bundling" == "import_maps" ] && [ "$css_bundling" != "css" ]
       then
-        docker run -it --rm -v $PWD:/opt/app rails-toolbox-$project_name rails new -d postgresql --skip-bundle  -c $css_bundling $project_name
+        docker run -it --rm -v $PWD:/opt/app rails-toolbox-$project_name rails new $api -d postgresql --skip-bundle  -c $css_bundling $project_name
       else
-        docker run -it --rm -v $PWD:/opt/app rails-toolbox-$project_name rails new -d postgresql --skip-bundle -j $js_bundling -c $css_bundling $project_name
+        docker run -it --rm -v $PWD:/opt/app rails-toolbox-$project_name rails new $api -d postgresql --skip-bundle -j $js_bundling -c $css_bundling $project_name
       fi
     fi
   fi
